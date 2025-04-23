@@ -84,11 +84,11 @@ class _PlaceOrderPageState extends State<PlaceOrderPage> {
             ],
           ),
         ),
-        bottomNavigationBar: const CustomBottomNavigation(currentIndex: 3),
+        bottomNavigationBar: const CustomBottomNavigation(currentIndex: 2),
       );
     }
 
-    // Calculate order total
+    // Calculate order total from the cart model
     double orderTotal = cartModel.grandTotal;
 
     return Scaffold(

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:provider/provider.dart';
 import '../components/app_header.dart';
 import '../components/bottom_navigation.dart';
 import '../components/food_item_card.dart';
 import '../models/food_item.dart';
+import '../models/user_model.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -64,6 +66,23 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Check if user is authenticated
+    final userModel = Provider.of<UserModel>(context);
+
+    // If user is not authenticated, redirect to landing page
+    if (!userModel.isAuthenticated) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.go('/');
+      });
+
+      // Return loading indicator while redirecting
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       body: Column(

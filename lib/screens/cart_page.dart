@@ -2,27 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../components/app_header.dart';
 import '../components/bottom_navigation.dart';
-import '../components/cart_item.dart';
+import '../components/cart_item.dart' as component;
 import '../models/food_item.dart';
+import 'package:provider/provider.dart';
+import '../models/cart_model.dart';
 
 class CartPage extends StatelessWidget {
   const CartPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // For demo purposes, we'll use the first 3 items from our dummy data
-    final cartItems = dummyFoodItems.take(3).toList();
+    // Use the CartModel to get the actual items in the cart
+    final cartModel = Provider.of<CartModel>(context);
+    final cartItems = cartModel.items;
 
     // Calculate the subtotal
-    final subtotal = cartItems.fold<double>(
-      0,
-      (sum, item) => sum + item.price,
-    );
+    final subtotal = cartModel.totalPrice;
 
     // Add tax and delivery fee
-    const deliveryFee = 49.0;
-    final tax = subtotal * 0.05; // 5% tax
-    final total = subtotal + deliveryFee + tax;
+    final deliveryFee = cartModel.deliveryFee;
+    final tax = cartModel.taxes;
+    final total = cartModel.grandTotal;
 
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
@@ -119,7 +119,7 @@ class CartPage extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      cartItems.first.restaurant,
+                                      cartItems.first.item.restaurant,
                                       style: const TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
@@ -276,10 +276,10 @@ class CartPage extends StatelessWidget {
 
                               // List of cart items
                               ...cartItems.map(
-                                (item) => CartItem(
-                                  name: item.name,
-                                  price: item.price,
-                                  imageUrl: item.imageUrl,
+                                (item) => component.CartItem(
+                                  name: item.item.name,
+                                  price: item.item.price,
+                                  imageUrl: item.item.imageUrl,
                                 ),
                               ),
                             ],
@@ -412,7 +412,7 @@ class CartPage extends StatelessWidget {
         ],
       ),
       bottomNavigationBar: cartItems.isEmpty
-          ? const CustomBottomNavigation(currentIndex: 3)
+          ? const CustomBottomNavigation(currentIndex: 2)
           : SafeArea(
               child: Container(
                 padding: const EdgeInsets.all(16),

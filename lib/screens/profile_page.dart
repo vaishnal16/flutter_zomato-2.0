@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../models/user_model.dart';
 import '../components/bottom_navigation.dart';
 
@@ -9,6 +10,13 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userModel = Provider.of<UserModel>(context);
+
+    // If user is not authenticated, redirect to landing page
+    if (!userModel.isAuthenticated) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.go('/');
+      });
+    }
 
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
@@ -249,8 +257,67 @@ class ProfilePage extends StatelessWidget {
                     icon: Icons.exit_to_app,
                     title: 'Logout',
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Logout coming soon!')),
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Logout'),
+                          content:
+                              const Text('Are you sure you want to logout?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                try {
+                                  Navigator.of(context).pop();
+                                  // Show loading indicator
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (context) => const Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  );
+
+                                  final userModel = Provider.of<UserModel>(
+                                    context,
+                                    listen: false,
+                                  );
+
+                                  await userModel.signOut();
+
+                                  // Close loading indicator
+                                  Navigator.of(context).pop();
+
+                                  // Navigate to landing page
+                                  if (context.mounted) {
+                                    context.go('/');
+                                  }
+                                } catch (e) {
+                                  // Close loading indicator
+                                  Navigator.of(context).pop();
+
+                                  // Show error
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                          'Error signing out: ${e.toString()}'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              },
+                              child: const Text(
+                                'Logout',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          ],
+                        ),
                       );
                     },
                   ),

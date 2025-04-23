@@ -441,7 +441,7 @@ class _EatHealthyPageState extends State<EatHealthyPage>
         child: const Icon(Icons.fitness_center),
         tooltip: 'Set Nutrition Goals',
       ),
-      bottomNavigationBar: const CustomBottomNavigation(currentIndex: 2),
+      bottomNavigationBar: const CustomBottomNavigation(currentIndex: 1),
     );
   }
 
